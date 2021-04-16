@@ -87,8 +87,7 @@ fn parse_config(segments: &mut Split<char>) -> Config {
 
 #[wasm_bindgen]
 pub fn handle_request(url: &str) -> Result<::std::string::String, JsValue> {
-    let url =
-        Url::parse(&url).map_err(|e| JsValue::from_str(&format!("unable to parse url: {}", e)))?;
+    let url = Url::parse(&url).map_err(|e| JsValue::from_str("unable to parse url"))?;
 
     let text = match url.query() {
         Some(text) => text.to_owned(),
