@@ -2,6 +2,7 @@ mod utils;
 
 use cfg_if::cfg_if;
 use qrcode::{render::svg::Color, EcLevel, QrCode};
+#[cfg(feature = "smartstring")]
 use smartstring::alias::String;
 use std::str::Split;
 use url::Url;
