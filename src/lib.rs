@@ -32,10 +32,10 @@ fn parse_config(segments: &mut Split<char>) -> Config {
     let mut config = Config {
         min_size: None,
         max_size: None,
-        ec_level: EcLevel::M,
+        ec_level: EcLevel::L,
         bg: String::from("#ffffff"),
         fg: String::from("#000000"),
-        quiet_zone: true,
+        quiet_zone: false,
     };
 
     for e in segments {
