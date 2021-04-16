@@ -35,7 +35,7 @@ fn parse_config(segments: &mut Split<char>) -> Config {
         ec_level: EcLevel::L,
         bg: String::from("#ffffff"),
         fg: String::from("#000000"),
-        quiet_zone: false,
+        quiet_zone: true,
     };
 
     for e in segments {
