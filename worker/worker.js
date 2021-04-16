@@ -6,10 +6,10 @@ const D_MAXLEN = 127;
 const stat = n => fetch(`https://http.cat/${n}.jpg`)
 	.then(r => new Response(r, {status: n}));
 async function handleRequest(req) {
-	// let max_len = D_MAXLEN;
-	// if (req.url.length > max_len) {
-	// 	return await stat(413);
-	// }
+	let max_len = D_MAXLEN;
+	if (req.url.length > max_len) {
+		return stat(413);
+	}
 	const { handle_request } = wasm_bindgen;
 	await wasm_bindgen(wasm);
 	const output = handle_request(request.url);
