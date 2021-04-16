@@ -1,6 +1,10 @@
 addEventListener('fetch', event => {
 	event.respondWith(
 		handleRequest(event.request)
+		.then(v => {
+			if (v instanceof Response) return v;
+			return new Response(JSON.stringify(v));
+		})
 		.catch(e => new Response(JSON.stringify(e.stack), {status: 500}))
 	);
 });
