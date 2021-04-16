@@ -1,10 +1,13 @@
 addEventListener('fetch', event => {
 	event.respondWith(handleRequest(event.request));
 });
-let D_MAXLEN = 127;
-let MAXLEN = D_MAXLEN;
+const D_MAXLEN = 127;
+let MAXLEN = Promise.resolve(D_MAXLEN);
 if (typeof QR_CODE !== "undefined") {
-	MAXLEN = QR_CODE.get('max_len', {type: "json", cacheTtl: 3600});
+	MAXLEN = Promise.resolve().then(() => QR_CODE
+		.get('max_len', {type: "text", cacheTtl: 3600})
+		.then(v => v ?? D_MAXLEN);
+	).catch(_ => D_MAXLEN)
 }
 
 const stat = n => fetch(`https://http.cat/${n}.jpg`).then(r => new Response(r, {status: n}));
