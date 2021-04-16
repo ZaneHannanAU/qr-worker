@@ -2,7 +2,8 @@ mod utils;
 
 use cfg_if::cfg_if;
 use qrcode::{render::svg::Color, EcLevel, QrCode};
-use std::{collections::HashMap, str::Split};
+use smartstring::alias::String;
+use std::str::Split;
 use url::Url;
 use wasm_bindgen::prelude::*;
 
@@ -27,70 +28,64 @@ struct Config {
 
 // https://example.com/fg=000000/bg=ffffff/min=128/max=256/ec=m/qz=1?data
 fn parse_config(segments: &mut Split<char>) -> Config {
-    const DEFAULT_EC_LEVEL: EcLevel = EcLevel::M;
-    const DEFAULT_BG: &str = "#ffffff";
-    const DEFAULT_FG: &str = "#000000";
-    const DEFAULT_QUIET_ZONE: bool = true;
+    let mut config = Config {
+        min_size: None,
+        max_size: None,
+        ec_level: EcLevel::M,
+        bg: String::from("#ffffff"),
+        fg: String::from("#000000"),
+        quiet_zone: true,
+    };
 
-    let map = segments.fold(HashMap::new(), |mut acc, e| {
-        let pair = e.split("=").collect::<Vec<_>>();
-
-        if pair.len() < 2 {
-            return acc;
+    for e in segments {
+        if let Some((k, v)) = e.split_once("=") {
+            use EcLevel::*;
+            match k {
+                "min" => {
+                    config.min_size = v.parse().ok();
+                }
+                "max" => {
+                    config.max_size = v.parse().ok();
+                }
+                "ec" => {
+                    config.ec_level = match v {
+                        "l" => L,
+                        "m" => M,
+                        "q" => Q,
+                        "h" => H,
+                        _ => M,
+                    };
+                }
+                "bg" if v.len() <= 10 => {
+                    let mut s = String::from("#");
+                    s.push_str(v);
+                    config.bg = s;
+                }
+                "fg" if v.len() <= 10 => {
+                    let mut s = String::from("#");
+                    s.push_str(v);
+                    config.fg = s;
+                }
+                "qz" => {
+                    config.quiet_zone = match v {
+                        "1" => true,
+                        "0" => false,
+                        "true" => true,
+                        "false" => false,
+                        "yes" => true,
+                        "no" => false,
+                        _ => continue,
+                    };
+                }
+                _ => continue,
+            }
         }
-
-        acc.insert(pair[0], pair[1]);
-        acc
-    });
-
-    let min_size = match map.get("min") {
-        Some(size_str) => size_str.parse().ok(),
-        None => None,
-    };
-
-    let max_size = match map.get("max") {
-        Some(size_str) => size_str.parse().ok(),
-        None => None,
-    };
-
-    let ec_level = match map.get("ec") {
-        Some(&"l") => EcLevel::L,
-        Some(&"m") => EcLevel::M,
-        Some(&"q") => EcLevel::Q,
-        Some(&"h") => EcLevel::H,
-        Some(_) => DEFAULT_EC_LEVEL,
-        None => DEFAULT_EC_LEVEL,
-    };
-
-    let bg = match map.get("bg") {
-        Some(color) => format!("#{}", color),
-        None => DEFAULT_BG.to_owned(),
-    };
-
-    let fg = match map.get("fg") {
-        Some(color) => format!("#{}", color),
-        None => DEFAULT_FG.to_owned(),
-    };
-
-    let quiet_zone = match map.get("qz") {
-        Some(&"1") => true,
-        Some(&"0") => false,
-        Some(_) => DEFAULT_QUIET_ZONE,
-        None => DEFAULT_QUIET_ZONE,
-    };
-
-    Config {
-        min_size,
-        max_size,
-        ec_level,
-        bg,
-        fg,
-        quiet_zone,
     }
+    config
 }
 
 #[wasm_bindgen]
-pub fn handle_request(url: String) -> Result<String, JsValue> {
+pub fn handle_request(url: &str) -> Result<::std::string::String, JsValue> {
     let url =
         Url::parse(&url).map_err(|e| JsValue::from_str(&format!("unable to parse url: {}", e)))?;
 
@@ -123,5 +118,5 @@ pub fn handle_request(url: String) -> Result<String, JsValue> {
         image_builder = image_builder.max_dimensions(size, size);
     }
 
-    Ok(format!("{}", image_builder.build()))
+    Ok(image_builder.build())
 }
