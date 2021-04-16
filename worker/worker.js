@@ -1,5 +1,8 @@
 addEventListener('fetch', event => {
-	event.respondWith(handleRequest(event.request));
+	event.respondWith(
+		handleRequest(event.request)
+		.catch(e => new Response(JSON.stringify(e.stack), {status: 500}))
+	);
 });
 
 async function handleRequest(req) {
