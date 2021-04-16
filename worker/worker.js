@@ -10,12 +10,11 @@ async function handleRequest(req) {
 		MAXLEN ??= MAXLEN.then(_ => QR_CODE
 			.get('max_len', {type: "text", cacheTtl: 3600})
 			.then(v => v ?? D_MAXLEN)
-			.then(Number)
 		).catch(_ => D_MAXLEN)
 	} else {
 		MAXLEN = D_MAXLEN;
 	}
-	let max_len = await MAXLEN;
+	let max_len = (await MAXLEN) ?? D_MAXLEN;
 	if (req.url.length > max_len) {
 		return stat(413);
 	}
