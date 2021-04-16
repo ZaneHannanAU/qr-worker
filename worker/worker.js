@@ -4,11 +4,17 @@ addEventListener('fetch', event => {
 		.catch(e => new Response(JSON.stringify(e.stack), {status: 500}))
 	);
 });
+let MAXLEN = 127;
 
+const stat = async n => new Response(
+	await fetch(`https://http.cat/${n}.jpg`),
+	{status: n}
+);
 async function handleRequest(req) {
+	if (req.url.length > MAXLEN) return await stat(414);
 	const { handle_request } = wasm_bindgen;
 	await wasm_bindgen(wasm);
-	const output = handle_request(request.url);
+	const output = handle_request(req.url);
 
 	return new Response(output, {
 		status: 200,
