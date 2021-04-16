@@ -2,11 +2,12 @@ addEventListener('fetch', event => {
 	event.respondWith(handleRequest(event.request));
 });
 const D_MAXLEN = 127;
+let MAXLEN;
 
 const stat = n => fetch(`https://http.cat/${n}.jpg`)
 	.then(r => new Response(r, {status: n}));
 async function handleRequest(req) {
-	let max_len = D_MAXLEN;
+	let max_len = await MAXLEN ?? D_MAXLEN;
 	if (req.url.length > max_len) {
 		return stat(413);
 	}
