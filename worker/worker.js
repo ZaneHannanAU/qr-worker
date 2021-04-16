@@ -23,9 +23,10 @@ const stat = async n => new Response(
 	{status: n}
 );
 async function handleRequest(req) {
-	if (req.url.length > (await MAXLEN)) return await stat(414);
 	const { handle_request } = wasm_bindgen;
-	await wasm_bindgen(wasm);
+	let _was = wasm_bindgen(wasm);
+	if (req.url.length > (await MAXLEN)) return await stat(414);
+	await _was;
 	const output = handle_request(req.url);
 
 	return new Response(output, {
