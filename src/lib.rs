@@ -40,7 +40,6 @@ fn parse_config(segments: &mut Split<char>) -> Config {
 
     for e in segments {
         if let Some((k, v)) = e.split_once("=") {
-            use EcLevel::*;
             match k {
                 "min" => {
                     config.min_size = v.parse().ok();
@@ -49,6 +48,7 @@ fn parse_config(segments: &mut Split<char>) -> Config {
                     config.max_size = v.parse().ok();
                 }
                 "ec" => {
+                    use EcLevel::*;
                     config.ec_level = match v {
                         "l" => L,
                         "m" => M,
