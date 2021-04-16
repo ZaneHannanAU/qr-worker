@@ -11,9 +11,10 @@ addEventListener('fetch', event => {
 const D_MAX = 127;
 let MAXLEN = Promise.resolve(D_MAX);
 if (typeof QR_CODE !== "undefined") {
-	MAXLEN = QR_CODE.get("max_len")
+	MAXLEN = MAXLEN.then(() => QR_CODE
+		.get("max_len")
 		.then(v => v ? Number(v) : D_MAX)
-		.catch(_ => D_MAX);
+	).catch(_ => D_MAX);
 }
 
 
